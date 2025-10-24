@@ -1,0 +1,19 @@
+# 1. Java/Tomcat Compiled Output
+# Compiled class files and JARs (should not be tracked)
+*.class
+*.jar
+
+# 2. IDE/Editor Files
+.DS_Store
+.vscode/
+
+# 3. Tomcat/Deployment Artifacts
+# These files are generated when the server runs or you package the app
+*.war
+/build/
+/target/
+
+# 4. Critical: Relative path to the entire Tomcat server root
+# This prevents accidentally tracking the server itself
+/../tomcat9/
+

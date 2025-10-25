@@ -48,8 +48,8 @@
 
         // --- Connection Details (Replace with yours) ---
         String dbUrl = "jdbc:mariadb://localhost:3306/nobel";
-        String user = "your_user";
-        String pass = "your_password";
+        String user = "u0_a316";
+        String pass = "u0_a316_";
         String driver = "org.mariadb.jdbc.Driver";
 
         // --- Base SQL Query ---

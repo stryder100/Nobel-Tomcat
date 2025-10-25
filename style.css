@@ -1,0 +1,31 @@
+/* Basic body styling for better readability */
+body {
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 20px; /* Add some space around the page content */
+}
+
+/* Basic table styling */
+table {
+    width: 100%;
+    border-collapse: collapse; /* Removes double borders */
+    margin-top: 20px; /* Space above the table */
+}
+
+/* Table header (th) and data cell (td) styling */
+th, td {
+    border: 1px solid #ddd; /* Light grey border */
+    padding: 8px;          /* Padding inside cells */
+    text-align: left;      /* Align text to the left */
+}
+
+/* Style for table headers */
+th {
+    background-color: #f2f2f2; /* Light grey background for headers */
+    font-weight: bold;
+}
+
+/* Alternating row colors for readability (zebra striping) */
+tr:nth-child(even) {
+    background-color: #f9f9f9; /* Slightly different background for even rows */
+}

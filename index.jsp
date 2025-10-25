@@ -5,6 +5,7 @@
 <html>
 <head>
     <title>Nobel Prize Lookup - Latest Awards</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <h1>Latest Nobel Prize Recipients (JDBC Test)</h1>

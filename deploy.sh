@@ -27,3 +27,6 @@ mkdir -p "$TOMCAT_WEBAPPS_DIR/$APP_NAME/WEB-INF/lib"
 cp lib/*.jar "$TOMCAT_WEBAPPS_DIR/$APP_NAME/WEB-INF/lib/"
 
 echo "Deployment of $APP_NAME successful."
+
+# 1. start the server (safety first)
+../tomcat9/bin/startup.sh 

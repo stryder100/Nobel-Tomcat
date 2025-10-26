@@ -1,56 +1,70 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8" import="java.sql.*" %>
+    pageEncoding="UTF-8" import="java.sql.*, java.util.ArrayList, java.util.List" %>
 
 <!DOCTYPE html>
 <html>
 <head>
     <title>Nobel Prize Lookup</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css"> <%-- Link to your CSS file --%>
 </head>
 <body>
 
-    <%-- T-236: Add Search Form --%>
+    <%-- Search Form Section --%>
     <div class="search-form">
         <h2>Search Nobel Prizes</h2>
         <form action="index.jsp" method="get">
             <label for="year">Year:</label>
-            <input type="number" id="year" name="search_year" placeholder="e.g., 2023">
+            <input type="number" id="year" name="search_year" placeholder="e.g., 2023" value="<%= request.getParameter("search_year") != null ? request.getParameter("search_year") : "" %>">
 
             <label for="category">Category:</label>
-            <input type="text" id="category" name="search_category" placeholder="e.g., Physics">
+            <input type="text" id="category" name="search_category" placeholder="e.g., Physics" value="<%= request.getParameter("search_category") != null ? request.getParameter("search_category") : "" %>">
 
             <label for="name">Laureate Name:</label>
-            <input type="text" id="name" name="search_name" placeholder="e.g., Curie">
+            <input type="text" id="name" name="search_name" placeholder="e.g., Curie" value="<%= request.getParameter("search_name") != null ? request.getParameter("search_name") : "" %>">
 
             <button type="submit">Search</button>
-            <a href="index.jsp">Clear Search</a> <%-- Link to reset the search --%>
+            <a href="index.jsp">Clear Search</a> <%-- Link to reset search --%>
         </form>
     </div>
-    <%-- End Search Form --%>
 
     <hr> <%-- Visual separator --%>
 
-    <h1>Latest Nobel Prize Recipients</h1>
+    <h1>Nobel Prize Recipients</h1>
 
+    <%-- Results Table Section --%>
     <table border="1" style="width:100%; border-collapse: collapse;">
-        <%-- Table headers remain the same --%>
-        <tr>
-            <th>Year / Category</th>
-            <th>Laureate</th>
-            <th>Motivation</th>
-            <th>Share</th>
-        </tr>
-
+        <thead>
+            <tr>
+                <th>Year / Category</th>
+                <th>Laureate</th>
+                <th>Motivation</th>
+                <th>Share</th>
+            </tr>
+        </thead>
+        <tbody>
     <%
+        // --- Database Connection Variables ---
         Connection conn = null;
-        PreparedStatement pstmt = null; // Use PreparedStatement for security
+        PreparedStatement pstmt = null;
         ResultSet rs = null;
 
-        // --- Connection Details (Replace with yours) ---
+        // --- REPLACE with your actual MariaDB credentials ---
         String dbUrl = "jdbc:mariadb://localhost:3306/nobel";
         String user = "u0_a316";
         String pass = "u0_a316_";
         String driver = "org.mariadb.jdbc.Driver";
+
+        // --- Get Search Parameters ---
+        String searchYearParam = request.getParameter("search_year");
+        String searchCategoryParam = request.getParameter("search_category");
+        String searchNameParam = request.getParameter("search_name");
+
+        // --- DEBUG: Print received parameters (Optional: remove for production) ---
+        System.out.println("--- DEBUG JSP PARAMETERS ---");
+        System.out.println("Received search_year: " + searchYearParam);
+        System.out.println("Received search_category: " + searchCategoryParam);
+        System.out.println("Received search_name: " + searchNameParam);
+        System.out.println("-----------------------------");
 
         // --- Base SQL Query ---
         String baseSql = "SELECT " +
@@ -59,54 +73,118 @@
                          "FROM nobelPrize n " +
                          "INNER JOIN laureate l ON n.nobelPrizeId = l.lNobelPrizeId ";
 
-        // --- Build WHERE clause based on search parameters (Will be added in next step) ---
-        String whereClause = ""; // Placeholder for search logic
-        // Example: if (request.getParameter("search_year") != null) { ... }
+        // --- Dynamically Build WHERE Clause ---
+        StringBuilder whereSql = new StringBuilder();
+        List<Object> params = new ArrayList<>();
+        boolean firstCondition = true;
+
+        // Add condition for Year
+        if (searchYearParam != null && !searchYearParam.trim().isEmpty()) {
+             try {
+                 whereSql.append(" WHERE n.nobelPrizeYear = ?");
+                 params.add(Integer.parseInt(searchYearParam.trim())); // Add year as integer
+                 firstCondition = false;
+            } catch (NumberFormatException e) {
+                 System.out.println("WARN: Invalid year format: " + searchYearParam);
+                 // Ignore invalid year input for this simple example
+            }
+        }
+
+        // Add condition for Category (case-insensitive LIKE search)
+        if (searchCategoryParam != null && !searchCategoryParam.trim().isEmpty()) {
+            if (firstCondition) { whereSql.append(" WHERE "); firstCondition = false; }
+            else { whereSql.append(" AND "); }
+            whereSql.append("LOWER(n.nobelPrizeCategory) LIKE LOWER(?)"); // Case-insensitive
+            params.add("%" + searchCategoryParam.trim() + "%");
+        }
+
+        // Add condition for Laureate Name (searches first OR last name, case-insensitive LIKE)
+        if (searchNameParam != null && !searchNameParam.trim().isEmpty()) {
+            if (firstCondition) { whereSql.append(" WHERE "); firstCondition = false; }
+            else { whereSql.append(" AND "); }
+            whereSql.append("(LOWER(l.firstName) LIKE LOWER(?) OR LOWER(l.surName) LIKE LOWER(?))"); // Case-insensitive
+            String namePattern = "%" + searchNameParam.trim() + "%";
+            params.add(namePattern);
+            params.add(namePattern);
+        }
+
+        String whereClause = whereSql.toString();
 
         // --- Final SQL ---
-        String sql = baseSql + whereClause + " ORDER BY n.nobelPrizeId DESC LIMIT 20";
+        // Order by year descending first, then category, then surname
+        String sql = baseSql + whereClause + " ORDER BY n.nobelPrizeYear DESC, n.nobelPrizeCategory ASC, l.surName ASC LIMIT 50"; // Increased limit slightly
+        System.out.println("DEBUG: Executing SQL: " + sql); // Optional: Check SQL in catalina.out
+
+        boolean resultsFound = false; // Flag to check if any rows were returned
 
         try {
+            // --- Connect and Prepare Statement ---
             Class.forName(driver);
             conn = DriverManager.getConnection(dbUrl, user, pass);
-
-            // --- Use PreparedStatement (even without parameters yet) ---
             pstmt = conn.prepareStatement(sql);
+
+            // --- Bind Parameters ---
+            for (int i = 0; i < params.size(); i++) {
+                Object param = params.get(i);
+                // Parameter index is 1-based in JDBC
+                if (param instanceof Integer) {
+                    pstmt.setInt(i + 1, (Integer) param);
+                    System.out.println("DEBUG: Binding param #" + (i+1) + " (Int): " + param);
+                } else if (param instanceof String) {
+                    pstmt.setString(i + 1, (String) param);
+                    System.out.println("DEBUG: Binding param #" + (i+1) + " (String): " + param);
+                }
+            }
+
+            // --- Execute Query ---
             rs = pstmt.executeQuery();
 
-            // --- Iterate through Results (Loop remains the same) ---
+            // --- Iterate through Results and Display ---
             while (rs.next()) {
+                resultsFound = true; // Mark that we found at least one result
                 String year = rs.getString("nobelPrizeYear");
                 String category = rs.getString("nobelPrizeCategory");
                 String firstName = rs.getString("firstName");
                 String surName = rs.getString("surName");
                 String motivation = rs.getString("motivation");
                 String share = rs.getString("share");
+
+                // Construct full name, handling potential nulls
+                String fullName = (firstName != null ? firstName : "") + " " + (surName != null ? surName : "");
     %>
-        <tr>
-            <td><%= year %> / <%= category %></td>
-            <td><%= (firstName != null ? firstName : "") + " " + (surName != null ? surName : "") %></td> <%-- Handle null names --%>
-            <td><%= motivation != null ? motivation : "" %></td> <%-- Handle null motivation --%>
-            <td><%= share != null ? share : "" %></td> <%-- Handle null share --%>
-        </tr>
+            <tr>
+                <td><%= year != null ? year : "" %> / <%= category != null ? category : "" %></td>
+                <td><%= fullName.trim() %></td>
+                <td><%= motivation != null ? motivation : "" %></td>
+                <td><%= share != null ? share : "" %></td>
+            </tr>
     <%
             } // End of while loop
-            if (!rs.isBeforeFirst() ) { // Check if ResultSet was empty
-                 out.println("<tr><td colspan='4'>No results found.</td></tr>");
+
+            // --- Display "No results" message if needed ---
+            if (!resultsFound) {
+                 out.println("<tr><td colspan='4' style='text-align: center;'>No results found matching your search criteria.</td></tr>");
             }
+
         } catch (SQLException e) {
-            out.println("<h3 style='color:red;'>Database Error!</h3>");
-            out.println("<p>SQL State: " + e.getSQLState() + " Error: " + e.getMessage() + "</p>");
+            // --- Error Handling ---
+            out.println("<tr><td colspan='4' style='color:red; text-align: center;'>Database Error!</td></tr>");
+            out.println("<tr><td colspan='4'>SQL State: " + e.getSQLState() + " Error: " + e.getMessage() + "</td></tr>");
+            System.err.println("SQL Error: " + e.getMessage()); // Log error to catalina.out
+            e.printStackTrace(); // Full stack trace to catalina.out for debugging
         } catch (ClassNotFoundException e) {
-            out.println("<h3 style='color:red;'>Driver Error!</h3>");
-            out.println("<p>JDBC Driver Class Not Found!</p>");
+            out.println("<tr><td colspan='4' style='color:red; text-align: center;'>Driver Error! JDBC Driver Class Not Found!</td></tr>");
+            System.err.println("JDBC Driver Error: " + e.getMessage());
         } finally {
-            // Close resources
+            // --- Safely Close Resources ---
             if (rs != null) try { rs.close(); } catch (SQLException ignore) {}
             if (pstmt != null) try { pstmt.close(); } catch (SQLException ignore) {}
             if (conn != null) try { conn.close(); } catch (SQLException ignore) {}
         }
     %>
+        </tbody>
     </table>
+
 </body>
 </html>
+

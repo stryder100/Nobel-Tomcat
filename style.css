@@ -1,3 +1,31 @@
+/* Steampunk Color Palette and Base Styles */
+:root {
+    --brass-color: #b5a642;
+    --dark-wood: #654321;
+    --copper-color: #b87333;
+    --glass-background: rgba(210, 230, 255, 0.1); /* Slightly glowing light blue glass */
+    --text-color: #e0e0e0; /* Off-white text for dark background */
+    --border-color: #444; /* Dark border */
+    --glow-color: #ffcc66; /* Subtle glow for accents */
+}
+
+body {
+    font-family: 'Times New Roman', serif; /* Or a more steampunk font if you find one */
+    background-color: var(--dark-wood);
+    /* Add a subtle wood grain or dark industrial texture background image */
+    background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.5)), url('https://www.transparenttextures.com/patterns/wood-grain.png'); /* Example texture */
+    color: var(--text-color);
+    line-height: 1.6;
+    margin: 20px;
+}
+
+h1, h2 {
+    color: var(--brass-color);
+    text-shadow: 1px 1px 2px black;
+    border-bottom: 1px solid var(--copper-color);
+    padding-bottom: 5px;
+}
+
 /* Basic body styling for better readability */
 body {
     font-family: sans-serif;
@@ -5,27 +33,91 @@ body {
     margin: 20px; /* Add some space around the page content */
 }
 
-/* Basic table styling */
+/* Steampunk Table Styling */
 table {
     width: 100%;
-    border-collapse: collapse; /* Removes double borders */
-    margin-top: 20px; /* Space above the table */
+    border: 3px ridge var(--brass-color); /* Thick, ornate border */
+    border-collapse: separate; /* Needed for border-spacing */
+    border-spacing: 0;
+    margin-top: 20px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.7);
+    background-color: rgba(10, 10, 10, 0.6); /* Darker background */
 }
 
-/* Table header (th) and data cell (td) styling */
 th, td {
-    border: 1px solid #ddd; /* Light grey border */
-    padding: 8px;          /* Padding inside cells */
-    text-align: left;      /* Align text to the left */
+    border: 1px solid var(--copper-color); /* Copper lines */
+    padding: 10px 12px;
+    text-align: left;
+    vertical-align: top; /* Align content to the top */
 }
 
-/* Style for table headers */
-th {
-    background-color: #f2f2f2; /* Light grey background for headers */
+thead th { /* Table headers */
+    background-color: var(--dark-wood); /* Dark wood header */
+    background-image: linear-gradient(rgba(255,255,255,0.1), rgba(0,0,0,0.2)); /* Subtle gradient */
+    color: var(--brass-color);
+    font-size: 1.1em;
+    text-shadow: 1px 1px 1px black;
+    border-bottom: 2px solid var(--brass-color);
+}
+
+tbody tr:nth-child(even) { /* Zebra striping */
+    background-color: rgba(255, 255, 255, 0.05); /* Very subtle difference */
+}
+
+tbody tr:hover { /* Row hover effect */
+    background-color: rgba(var(--glow-color-rgb, 255, 204, 102), 0.1); /* Use RGB for alpha */
+    color: var(--glow-color);
+}
+
+/* Add RGB variable for alpha transparency */
+:root {
+    --glow-color-rgb: 255, 204, 102; /* Add this to your :root section */
+    /* ... other variables ... */
+}
+
+/* Search Form Styling */
+.search-form {
+    background-color: rgba(0, 0, 0, 0.4); /* Dark semi-transparent background */
+    border: 2px solid var(--brass-color);
+    padding: 15px;
+    margin-bottom: 20px;
+    box-shadow: inset 0 0 10px black, 0 0 5px var(--brass-color); /* Inner and outer shadow */
+}
+
+.search-form label {
+    display: inline-block;
+    width: 120px; /* Align labels */
+    color: var(--copper-color);
     font-weight: bold;
+    margin-right: 5px;
 }
 
-/* Alternating row colors for readability (zebra striping) */
-tr:nth-child(even) {
-    background-color: #f9f9f9; /* Slightly different background for even rows */
+.search-form input[type="text"],
+.search-form input[type="number"] {
+    background-color: var(--glass-background);
+    border: 1px solid var(--brass-color);
+    color: var(--text-color);
+    padding: 8px;
+    margin-right: 15px; /* Spacing between inputs */
+    margin-bottom: 10px;
+    box-shadow: inset 1px 1px 3px black; /* Give depth */
+}
+
+.search-form button,
+.search-form a { /* Style the 'Clear Search' link like a button */
+    background-color: var(--brass-color);
+    color: var(--dark-wood);
+    border: 1px outset #eee; /* Raised border effect */
+    padding: 8px 15px;
+    font-weight: bold;
+    text-decoration: none;
+    cursor: pointer;
+    box-shadow: 1px 1px 3px black;
+    transition: background-color 0.2s ease; /* Smooth hover */
+}
+
+.search-form button:hover,
+.search-form a:hover {
+    background-color: var(--copper-color);
+    color: white;
 }

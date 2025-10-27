@@ -7,6 +7,7 @@
     --text-color: #e0e0e0; /* Off-white text for dark background */
     --border-color: #444; /* Dark border */
     --glow-color: #ffcc66; /* Subtle glow for accents */
+    --glow-color-rgb: 255, 204, 102;
 }
 
 body {
@@ -69,12 +70,6 @@ tbody tr:hover { /* Row hover effect */
     color: var(--glow-color);
 }
 
-/* Add RGB variable for alpha transparency */
-:root {
-    --glow-color-rgb: 255, 204, 102; /* Add this to your :root section */
-    /* ... other variables ... */
-}
-
 /* Search Form Styling */
 .search-form {
     background-color: rgba(0, 0, 0, 0.4); /* Dark semi-transparent background */
@@ -92,6 +87,7 @@ tbody tr:hover { /* Row hover effect */
     margin-right: 5px;
 }
 
+.search-form select,
 .search-form input[type="text"],
 .search-form input[type="number"] {
     background-color: var(--glass-background);

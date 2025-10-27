@@ -12,12 +12,26 @@
     <%-- Search Form Section --%>
     <div class="search-form">
         <h2>Search Nobel Prizes</h2>
-        <form action="index.jsp" method="get">
-            <label for="year">Year:</label>
+        <form action="index.jsp" method="post">
             <input type="number" id="year" name="search_year" placeholder="e.g., 2023" value="<%= request.getParameter("search_year") != null ? request.getParameter("search_year") : "" %>">
 
             <label for="category">Category:</label>
+            <!--
             <input type="text" id="category" name="search_category" placeholder="e.g., Physics" value="<%= request.getParameter("search_category") != null ? request.getParameter("search_category") : "" %>">
+            -->
+            <%
+                String category_param = request.getParameter("search_category");
+                category_param = (category_param != null ? category_param : "");
+            %>
+            <select id="category" name="search_category" value="<%= category_param != null ? category_param : "" %>">
+                <option value="">Please Choose a Category</option>
+                <option value="chemistry"<% if ("chemistry".equals(category_param)) { out.print(" selected"); } %>>chemistry</option>
+                <option value="economics"<% if ("economics".equals(category_param)) { out.print(" selected"); } %>>economics</option>
+                <option value="literature"<% if ("literature".equals(category_param)) { out.print(" selected"); } %>>literature</option>
+                <option value="medicine"<% if ("medicine".equals(category_param)) { out.print(" selected"); } %>>medicine</option>
+                <option value="peace"<% if ("peace".equals(category_param)) { out.print(" selected"); } %>>peace</option>
+                <option value="physics"<% if ("physics".equals(category_param)) { out.print(" selected"); } %>>physics</option>
+            </select>
 
             <label for="name">Laureate Name:</label>
             <input type="text" id="name" name="search_name" placeholder="e.g., Curie" value="<%= request.getParameter("search_name") != null ? request.getParameter("search_name") : "" %>">

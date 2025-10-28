@@ -16,9 +16,6 @@
             <input type="number" id="year" name="search_year" placeholder="e.g., 2023" value="<%= request.getParameter("search_year") != null ? request.getParameter("search_year") : "" %>">
 
             <label for="category">Category:</label>
-            <!--
-            <input type="text" id="category" name="search_category" placeholder="e.g., Physics" value="<%= request.getParameter("search_category") != null ? request.getParameter("search_category") : "" %>">
-            -->
             <%
                 String category_param = request.getParameter("search_category");
                 category_param = (category_param != null ? category_param : "");
@@ -73,13 +70,6 @@
         String searchCategoryParam = request.getParameter("search_category");
         String searchNameParam = request.getParameter("search_name");
 
-        // --- DEBUG: Print received parameters (Optional: remove for production) ---
-        System.out.println("--- DEBUG JSP PARAMETERS ---");
-        System.out.println("Received search_year: " + searchYearParam);
-        System.out.println("Received search_category: " + searchCategoryParam);
-        System.out.println("Received search_name: " + searchNameParam);
-        System.out.println("-----------------------------");
-
         // --- Base SQL Query ---
         String baseSql = "SELECT " +
                          "    n.nobelPrizeYear, n.nobelPrizeCategory, " +
@@ -127,7 +117,6 @@
         // --- Final SQL ---
         // Order by year descending first, then category, then surname
         String sql = baseSql + whereClause + " ORDER BY n.nobelPrizeYear DESC, n.nobelPrizeCategory ASC, l.surName ASC LIMIT 50"; // Increased limit slightly
-        System.out.println("DEBUG: Executing SQL: " + sql); // Optional: Check SQL in catalina.out
 
         boolean resultsFound = false; // Flag to check if any rows were returned
 
@@ -143,10 +132,8 @@
                 // Parameter index is 1-based in JDBC
                 if (param instanceof Integer) {
                     pstmt.setInt(i + 1, (Integer) param);
-                    System.out.println("DEBUG: Binding param #" + (i+1) + " (Int): " + param);
                 } else if (param instanceof String) {
                     pstmt.setString(i + 1, (String) param);
-                    System.out.println("DEBUG: Binding param #" + (i+1) + " (String): " + param);
                 }
             }
 

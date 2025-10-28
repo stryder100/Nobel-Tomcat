@@ -116,7 +116,8 @@
 
         // --- Final SQL ---
         // Order by year descending first, then category, then surname
-        String sql = baseSql + whereClause + " ORDER BY n.nobelPrizeYear DESC, n.nobelPrizeCategory ASC, l.surName ASC LIMIT 50"; // Increased limit slightly
+        String sql = baseSql + whereClause + " ORDER BY n.nobelPrizeYear DESC, n.nobelPrizeCategory ASC, l.surName ASC";
+        // String sql = baseSql + whereClause + " ORDER BY n.nobelPrizeYear DESC, n.nobelPrizeCategory ASC, l.surName ASC LIMIT 50"; // Increased limit slightly
 
         boolean resultsFound = false; // Flag to check if any rows were returned
 
